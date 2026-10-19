@@ -1,0 +1,9 @@
+# 文档索引
+
+- [开发指南](development.md) —— DSH 插件包契约、模块加载、服务注入、预览渲染器与正文 slot。
+- [本地安装与调试](local-install.md) —— 本地路径安装、生效条件、卸载与排查。
+- [测试](testing.md) —— 自动测试、手工验收清单与测试数据规则。
+- [参考资料](reference.md) —— 上游包与本地取证资料的索引。
+- [dsh-tcl-copy 设计记录](plugins/dsh-tcl-copy/design.md) —— 第一个插件的设计与取舍。
+
+原始实施计划、官方文档副本和 asar 提取物放在 `local/`，不进入公开仓库。

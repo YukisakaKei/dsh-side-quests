@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# local-only references, raw notes, unsanitized screenshots
+local/
+Tmpdata/
+tmp/
+
+# logs and runtime state
+*.log
+.plugin-manager/
+.claude/settings.local.json
+.claude/worktrees/
+
+# secrets / credentials
+.env
+.env.*
+!.env.example
+
+# build artifacts / archives
+*.tgz
+*.asar
+*.zip
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -22,8 +22,7 @@ window.__ModuleLoader__.load({
   factory: (require) => {
     const React = require('react')
 
-    // Platform primitives (CodeBlock). Optional: gracefully degrade when an
-    // older host does not inject it.
+    // Optional platform primitive; older hosts may not inject it.
     let primitives = null
     try {
       primitives = require('@deepseek-ai/dsh-client-ui-primitives')
@@ -35,8 +34,7 @@ window.__ModuleLoader__.load({
     const NS = 'dshTclCopy'
     const EXTENSIONS = ['tcl']
 
-    // Above this many bytes of loaded text we drop per-line <span>s (line
-    // numbers) so a very large file does not blow up the DOM. Copy is unaffected.
+    // Drop line numbers above this size to keep the DOM small; copy is unaffected.
     const LINE_NUMBERS_MAX_BYTES = 2 * 1024 * 1024
 
     const zh = {
@@ -58,12 +56,7 @@ window.__ModuleLoader__.load({
       failed: 'Read failed'
     }
 
-    /**
-     * Parse a `dsh-resource://file/session/<sessionId>/<path>` address back into
-     * its parts. Mirrors the host's own grammar: path segments are percent
-     * encoded, `:` stays literal for Windows drive letters, and a query/fragment
-     * suffix is ignored.
-     */
+    // Parse a dsh-resource file address; percent-decode each path segment.
     function parseAddress(address) {
       if (typeof address !== 'string') return undefined
       const q = address.search(/[?#]/)
@@ -160,8 +153,7 @@ window.__ModuleLoader__.load({
       document.head.appendChild(el)
     }
 
-    // Read a service from the context, preferring the cordis-canonical
-    // `ctx.get(name)` and falling back to the reflect-provided property.
+    // Read a service via ctx.get(), falling back to the reflected property.
     function getService(ctx, name) {
       let value
       try {
@@ -285,8 +277,7 @@ window.__ModuleLoader__.load({
           )
         }
 
-        // Avoid per-line spans for very large files (line numbers only; copy is
-        // unaffected because it reads bytes itself).
+        // Large files skip per-line spans; copy reads bytes and is unaffected.
         const lineNumbers = content.text.length < LINE_NUMBERS_MAX_BYTES
 
         let hint = null

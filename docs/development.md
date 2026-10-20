@@ -149,9 +149,10 @@ window.__ModuleLoader__.load({
 
 | 服务 | 用途 | 必要性 |
 |---|---|---|
-| `slots` | 注册预览正文组件 | 必需 |
+| `slots` | 注册 UI 入口与正文组件 | 必需 |
 | `documentPreviews` | 注册文件预览渲染器 | 预览类插件必需 |
 | `remote.workspaceFiles` | 读取文件字节或文本页 | 复制/自读时需要 |
+| `layout` | 打开全局面板（`ctx.layout.selectPanel`） | 面板类插件需要 |
 | `locale` | 中英文案 | 建议 |
 
 读取服务时优先 `ctx.get(name)`，失败再退回 `ctx[name]`，并在缺失时打印一条
@@ -204,6 +205,36 @@ ctx.effect(() =>
 | `t` | 绑定到注册时 `locale` 的翻译函数 |
 | `useTabInfo` | 可选 hook，用于拿 tab 生命周期与取消信号 |
 
+## 注册全局面板
+
+全局面板不依赖会话。向侧栏注册入口，并向 root 作用域的 `main` keyed slot
+注册同 id 的页面：
+
+```js
+const PANEL_ID = 'dsh-example'
+
+ctx.effect(() =>
+  ctx.slots.inject('sidebar.panellist', () =>
+    ctx.slots.register({
+      name: 'sidebar.panellist',
+      id: PANEL_ID,
+      order: 20,
+      locale: 'dshExample',
+      label: () => t('panel')
+    }, PanelIcon)
+  )
+)
+
+ctx.effect(() =>
+  ctx.slots.inject('main', () =>
+    ctx.slots.register({ name: 'main', key: PANEL_ID, locale: 'dshExample' }, PanelPage)
+  )
+)
+```
+
+入口的 `id` 与 `main` 的 `key` 必须一致。`ctx.layout.selectPanel(PANEL_ID)`
+可在代码里打开该面板；选择不存在的 key 会抛错。
+
 ## 读取模式
 
 | 模式 | 谁读取 | 正文收到的 `content` |
@@ -231,6 +262,14 @@ ctx.remote.workspaceFiles.readBytes(sessionId, path, {}, signal)
 
 优先 `navigator.clipboard.writeText`，失败时退回 `document.execCommand('copy')`。
 读取或剪贴板失败都要给出可见提示并允许重试；具体文案由插件 README 定义。
+
+## 桌面原生通知
+
+Desktop 的 preload 会把 `window.Notification` 替换成走 IPC 的原生通知桥，
+`Notification.permission` 为 `granted`。`new Notification(title, { body, silent: true })`
+显示 Windows toast；点击时主进程恢复并聚焦窗口，页面收到的 `onclick` 可继续导航。
+浏览器版仍是标准 Notification，需要用户授权。该桥不是公开插件 API，
+升级 DSH 后需要复核。
 
 ## 生命周期与容错
 

@@ -7,6 +7,8 @@
 
 | 包 | 用途 |
 |---|---|
+| `@deepseek-ai/dsh-client-ui-layout` | 三栏布局、全局面板与 `ctx.layout.selectPanel` |
+| `@deepseek-ai/dsh-client-ui-sidebar` | 侧栏外壳与 `sidebar.panellist` 等席位 |
 | `@deepseek-ai/dsh-client-ui-sidebar-documentpreview` | 右侧栏文档预览、渲染器注册、正文 slot、分页读取 |
 | `@deepseek-ai/dsh-client-ui-primitives` | `CodeBlock` 等共享 UI 原语 |
 | `@deepseek-ai/dsh-client-ui-slots` | slot 注册与注入 |

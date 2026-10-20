@@ -25,7 +25,7 @@ dsh plugin --profile web add "D:/AI_Agent/dsh-plugin/plugins/dsh-tcl-copy"
 
 1. 打开一个目标后缀的文件（例如 `.tcl`）。
 2. 右侧栏的渲染器下拉里出现插件标题（例如「TCL 文本」）。
-3. 点击预览工具栏里的按钮，确认剪贴板内容。
+3. 点击预览头部的复制图标，确认剪贴板内容。
 4. 浏览器控制台无 `[dsh-tcl-copy] required services unavailable` 之类的警告。
 
 ## 卸载

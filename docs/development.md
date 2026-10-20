@@ -3,11 +3,11 @@
 本文记录本仓库实际使用的 DSH 插件接口与约定。内容以已验证的宿主版本为准；
 接口是宿主提供的公开扩展点，具体实现可能随 DSH 版本变化。
 
-## 已验证宿主
+## 宿主版本
 
-- DSH Desktop 0.1.7 代次，profile `web`。
+- 当前核对：DSH Desktop 0.12.0 代次，内核 `@deepseek-ai/dsh` 0.2.0-rc.2，profile `web`。
 - 浏览器半依赖的模块加载器、`documentPreviews`、正文 slot、
-  `remote.workspaceFiles.readBytes` 与 `CodeBlock` 均已在实际插件中运行验证。
+  `remote.workspaceFiles.readBytes`、`CodeBlock` 与 `Tooltip` 已按该版本的客户端包核对。
 - 其它版本未逐一验证；升级 DSH 后应重新检查本指南与插件。
 
 ## 插件包契约

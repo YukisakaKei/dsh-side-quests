@@ -6,7 +6,7 @@
 
 | 插件 | 说明 | 状态 |
 |---|---|---|
-| [dsh-tcl-copy](plugins/dsh-tcl-copy/) | 右侧栏预览 `.tcl` 时一键复制全文 | 0.1.0，已验证 DSH 0.1.7 / profile `web` |
+| [dsh-tcl-copy](plugins/dsh-tcl-copy/) | 右侧栏预览 `.tcl` 时一键复制全文 | 0.1.1，适配 DSH Desktop 0.12.0（内核 0.2.0-rc.2） |
 
 ## 安装
 

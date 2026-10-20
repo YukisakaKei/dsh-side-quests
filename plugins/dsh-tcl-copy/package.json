@@ -1,6 +1,6 @@
 {
   "name": "dsh-tcl-copy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "DSH web plugin: one-click full-text copy for .tcl files in the right-sidebar preview.",
   "license": "MIT",

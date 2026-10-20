@@ -7,15 +7,18 @@
  * Split responsibilities:
  *   - DISPLAY reuses the host's built-in `text-pages` paged loading (lazy,
  *     scroll-driven) and the shared `CodeBlock` primitive for line numbers,
- *     wrap, and theming. We register a `documentPreviews` renderer that claims
- *     the `tcl` extension at `priority: "extension"`, which outranks the
- *     built-in fallback.
+ *     wrap, and theming. The header mirrors the built-in `CodeToolbar` used by
+ *     the code preview (language label on the left, icon actions on the right),
+ *     so a `.tcl` tab is indistinguishable in chrome from a built-in code tab.
+ *     We register a `documentPreviews` renderer that claims the `tcl` extension
+ *     at `priority: "extension"`, which outranks the built-in fallback.
  *   - COPY does its own complete-byte read via `ctx.remote.workspaceFiles.readBytes`
  *     on click, decodes it (UTF-8 / UTF-16 BOM aware), and writes the full text
  *     to the clipboard. This is the only way to copy the WHOLE file, including
  *     the trailing newline: the paged `read` API is line-oriented and drops the
  *     final empty line, so `content.text` can never represent a file ending in
- *     a newline exactly.
+ *     a newline exactly. The header is ours precisely because `CodeBlock`'s own
+ *     copy button writes the displayed (possibly unloaded) text.
  */
 window.__ModuleLoader__.load({
   id: 'dsh-tcl-copy',
@@ -34,11 +37,17 @@ window.__ModuleLoader__.load({
     const NS = 'dshTclCopy'
     const EXTENSIONS = ['tcl']
 
+    // Built-in toolbar chrome; older hosts without these fall back to text.
+    const Tooltip = primitives !== null ? primitives.Tooltip : undefined
+    const CopyIcon = primitives !== null ? primitives.IconCopyOutlineRegular : undefined
+    const CheckIcon = primitives !== null ? primitives.IconCheckOutlineRegular : undefined
+
     // Drop line numbers above this size to keep the DOM small; copy is unaffected.
     const LINE_NUMBERS_MAX_BYTES = 2 * 1024 * 1024
 
     const zh = {
       title: 'TCL 文本',
+      'codeBlock.title': '代码块',
       copy: '复制全文',
       copying: '正在读取…',
       copied: '已复制',
@@ -48,6 +57,7 @@ window.__ModuleLoader__.load({
     }
     const en = {
       title: 'TCL text',
+      'codeBlock.title': 'Code block',
       copy: 'Copy full text',
       copying: 'Reading…',
       copied: 'Copied',
@@ -128,14 +138,18 @@ window.__ModuleLoader__.load({
       return Promise.resolve(fallbackClipboard(text))
     }
 
+    // Header values mirror the primitives' CodeCard.module.css / CodeToolbar,
+    // rendered over the same `--dsw-*` tokens the built-in code preview uses.
     const STYLES = `
 .dsh-tcl-copy-root{white-space:normal;flex-direction:column;flex:auto;width:100%;min-width:0;height:100%;min-height:0;display:flex;overflow:hidden}
-.dsh-tcl-copy-toolbar{flex:none;display:flex;align-items:center;gap:8px;min-height:36px;padding:4px 10px;border-bottom:.5px solid var(--dsw-alias-border-l3)}
-.dsh-tcl-copy-button{box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:1px solid var(--dsw-alias-border-l2);border-radius:6px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:12px;line-height:1;cursor:pointer}
-.dsh-tcl-copy-button:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}
-.dsh-tcl-copy-button:disabled{opacity:.55;cursor:default}
-.dsh-tcl-copy-button[data-state='copied']{color:var(--dsw-alias-state-success-primary);border-color:var(--dsw-alias-state-success-primary)}
-.dsh-tcl-copy-hint{font-size:12px;color:var(--dsw-alias-state-error-primary)}
+.dsh-tcl-copy-heading{min-width:0;align-items:baseline;gap:12px;display:flex}
+.dsh-tcl-copy-language{color:var(--dsw-alias-label-tertiary);flex:none;font-family:var(--ds-font-family-code)}
+.dsh-tcl-copy-header{justify-content:space-between;align-items:center;gap:12px;padding:10px 18px 8px 22px;display:flex;color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-base);font:11px/18px var(--dsw-font-family);flex:none}
+.dsh-tcl-copy-actions{flex:none;align-items:center;gap:4px;display:flex}
+.dsh-tcl-copy-status{color:var(--dsw-alias-label-tertiary);white-space:nowrap;margin-right:8px}
+.dsh-tcl-copy-action{width:24px;height:24px;color:var(--dsw-alias-label-secondary);border:0;border-radius:var(--dsw-radius-sm);cursor:pointer;background:0 0;justify-content:center;align-items:center;padding:0;display:inline-flex}
+.dsh-tcl-copy-action:hover{background:var(--dsw-alias-interactive-bg-hover)}
+.dsh-tcl-copy-action:focus-visible{outline:1px solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
 .dsh-tcl-copy-code{--dsl-code-block-border-radius:0px;--dsl-code-block-line-white-space:pre;--dsl-code-block-background:transparent;flex-direction:column;flex:auto;min-width:0;height:100%;min-height:0;margin:0;display:flex;position:static}
 .dsh-tcl-copy-code>[data-code-block-content]{flex:auto;min-width:0;min-height:0;display:block;position:relative;overflow:auto}
 .dsh-tcl-copy-code>[data-code-block-content]::-webkit-scrollbar-track{margin:2px}
@@ -178,13 +192,17 @@ window.__ModuleLoader__.load({
         slots === undefined ||
         typeof readBytes !== 'function' ||
         primitives === null ||
-        primitives.CodeBlock === undefined
+        primitives.CodeBlock === undefined ||
+        primitives.Tooltip === undefined ||
+        primitives.IconCopyOutlineRegular === undefined ||
+        primitives.IconCheckOutlineRegular === undefined
       ) {
         console.warn('[dsh-tcl-copy] required services unavailable; skipping registration', {
           documentPreviews: previews !== undefined,
           slots: slots !== undefined,
           readBytes: typeof readBytes === 'function',
-          codeBlock: !!(primitives && primitives.CodeBlock)
+          codeBlock: !!(primitives && primitives.CodeBlock),
+          toolbar: !!(primitives && primitives.Tooltip && primitives.IconCopyOutlineRegular && primitives.IconCheckOutlineRegular)
         })
         return
       }
@@ -230,7 +248,14 @@ window.__ModuleLoader__.load({
         if (!content || content.kind !== 'text') return null
 
         const reading = copyState === 'reading'
-        const label = reading ? tBody('copying') : copyState === 'copied' ? tBody('copied') : tBody('copy')
+        const copied = copyState === 'copied'
+        const label = copied ? tBody('copied') : tBody('copy')
+
+        let status = null
+        if (reading) status = tBody('copying')
+        else if (copyState === 'tooLarge') status = tBody('tooLarge')
+        else if (copyState === 'binary') status = tBody('binary')
+        else if (copyState === 'failed') status = tBody('failed')
 
         function onCopy() {
           if (copyState === 'reading') return
@@ -279,30 +304,49 @@ window.__ModuleLoader__.load({
 
         // Large files skip per-line spans; copy reads bytes and is unaffected.
         const lineNumbers = content.text.length < LINE_NUMBERS_MAX_BYTES
-
-        let hint = null
-        if (copyState === 'tooLarge') hint = tBody('tooLarge')
-        else if (copyState === 'binary') hint = tBody('binary')
-        else if (copyState === 'failed') hint = tBody('failed')
+        const icon = copied ? CheckIcon : CopyIcon
+        const button = React.createElement(
+          'button',
+          {
+            type: 'button',
+            className: 'dsh-tcl-copy-action',
+            'aria-label': label,
+            'aria-busy': reading || undefined,
+            onClick: onCopy
+          },
+          React.createElement(icon, { size: 14 })
+        )
+        const action = React.createElement(
+          Tooltip,
+          { label, side: 'top', portal: true },
+          button
+        )
 
         return React.createElement(
           'div',
-          { className: 'dsh-tcl-copy-root', 'data-wrap': wrap ? 'true' : 'false' },
+          {
+            className: 'dsh-tcl-copy-root',
+            'data-code-preview': true,
+            'data-wrap': wrap ? 'true' : 'false'
+          },
           React.createElement(
             'div',
-            { className: 'dsh-tcl-copy-toolbar' },
+            { className: 'dsh-tcl-copy-header', 'data-code-block-banner': true },
             React.createElement(
-              'button',
-              {
-                type: 'button',
-                className: 'dsh-tcl-copy-button',
-                'data-state': copyState,
-                disabled: reading,
-                onClick: onCopy
-              },
-              label
+              'div',
+              { className: 'dsh-tcl-copy-heading' },
+              React.createElement(
+                'span',
+                { className: 'dsh-tcl-copy-language' },
+                tBody('codeBlock.title')
+              )
             ),
-            hint !== null && React.createElement('span', { className: 'dsh-tcl-copy-hint' }, hint)
+            React.createElement(
+              'div',
+              { className: 'dsh-tcl-copy-actions' },
+              status !== null && React.createElement('span', { className: 'dsh-tcl-copy-status' }, status),
+              action
+            )
           ),
           React.createElement(primitives.CodeBlock, {
             className: 'dsh-tcl-copy-code',

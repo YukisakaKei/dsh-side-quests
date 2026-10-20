@@ -15,7 +15,12 @@ const React = {
   useEffect: () => {}
 }
 
-const primitives = { CodeBlock: function CodeBlock() {} }
+const primitives = {
+  CodeBlock: function CodeBlock() {},
+  Tooltip: function Tooltip() {},
+  IconCopyOutlineRegular: function IconCopy() {},
+  IconCheckOutlineRegular: function IconCheck() {}
+}
 
 function mockRequire(id) {
   if (id === 'react') return React

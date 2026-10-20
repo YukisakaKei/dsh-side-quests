@@ -18,7 +18,9 @@ DSH 内置的「扩展名 → 语言」表不含 `tcl`，`.tcl` 因此落到纯�
    `priority: 'extension'`，`loading: 'text-pages'`。
 2. 向 keyed slot `sidebar.right.tab.document` 注册正文组件，key 与渲染器 id 一致。
 3. 显示复用内置分页加载与 `CodeBlock`（行号、软换行、主题）。
-4. 复制不自用 `content.text`（它只含已加载页），而是点击时调用
+4. 头部按内置 `CodeToolbar` 复刻：左侧语言标签、右侧复制图标 + Tooltip，
+   背景、字号、间距、图标尺寸与内置代码预览一致。
+5. 复制不自用 `content.text`（它只含已加载页），而是点击时调用
    `remote.workspaceFiles.readBytes` 读取完整字节，解码后写入剪贴板。
 
 ## 为什么复制要单独读
@@ -26,11 +28,21 @@ DSH 内置的「扩展名 → 语言」表不含 `tcl`，`.tcl` 因此落到纯�
 内置分页 API 以行为单位，`content.text` 只拼接已加载页，无法精确表示文件末尾换行。
 `readBytes` 能得到完整字节，配合 BOM 感知的 `TextDecoder` 可以保留 CRLF 与末尾换行。
 
+## 为什么自己画头部
+
+`CodeBlock` 自带的复制按钮写入的是它拿到的 `code`，也就是 `content.text`：
+只含已加载页，并且会裁掉末尾换行。要保留全文复制，就必须自己持有按钮。
+头部只是复刻内置 `CodeToolbar` 的 DOM 结构与 `CodeCard.module.css` 的样式值，
+不引入新的视觉语言；`data-code-preview` 标记同时让预览面板采用内置代码预览的
+flex 布局与内部滚动。
+
 ## 关键取舍
 
 | 取舍 | 选择 | 原因 |
 |---|---|---|
 | 语法高亮 | 不做 | 宿主 shiki grammar 白名单不含 tcl；复制功能不依赖高亮 |
+| 复制按钮 | 复刻内置 `CodeToolbar` | `CodeBlock` 自带按钮只能复制已加载文本，且裁掉末尾换行 |
+| 预览布局 | 根节点加 `data-code-preview` | 让预览面板采用内置代码预览的 flex 布局与内部滚动 |
 | 大文件行号 | 加载文本 ≥ 2 MiB 时关闭行号 | 避免逐行 `<span>` 撑爆 DOM；复制不受影响 |
 | 复制失败提示 | 区分过大、二进制、读取失败 | 用户能判断下一步 |
 | 二进制检测 | 解码后出现 NUL 即拒绝复制 | 避免把二进制内容写进剪贴板 |
@@ -57,9 +69,9 @@ DSH 内置的「扩展名 → 语言」表不含 `tcl`，`.tcl` 因此落到纯�
 
 ## 兼容性
 
-- 已在 DSH 0.1.7 代次、profile `web` 验证。
+- 目标宿主：DSH Desktop 0.12.0 代次，内核 `@deepseek-ai/dsh` 0.2.0-rc.2，profile `web`。
 - 依赖 `documentPreviews.register`、`slots.register`、
-  `remote.workspaceFiles.readBytes`、`CodeBlock`。
+  `remote.workspaceFiles.readBytes`、`CodeBlock`、`Tooltip` 与复制/对勾图标。
 - 升级 DSH 后按 [开发指南](../../development.md) 的兼容检查清单复核。
 
 ## 安全与隐私

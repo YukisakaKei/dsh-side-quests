@@ -29,7 +29,12 @@ function createHarness() {
     useEffect() {}
   }
 
-  const primitives = { CodeBlock: function CodeBlock() {} }
+  const primitives = {
+    CodeBlock: function CodeBlock() {},
+    Tooltip: function Tooltip() {},
+    IconCopyOutlineRegular: function IconCopy() {},
+    IconCheckOutlineRegular: function IconCheck() {}
+  }
 
   function mockRequire(id) {
     if (id === 'react') return React
@@ -265,4 +270,39 @@ test('UTF-8 BOM is stripped and text is intact', async () => {
 
   assert.equal(clipboardText, bomText)
   assert.equal(harness.stateLog[1], 'copied')
+})
+
+test('body mirrors the built-in code toolbar instead of a custom toolbar', () => {
+  const harness = createHarness()
+  const tree = harness.bodyComponent({
+    resourceAddress: 'dsh-resource://file/session/sess-123/designs/test.tcl',
+    content: { kind: 'text', text: 'set a 1', eof: true },
+    wrap: false,
+    scrollportRef: () => {},
+    t: (key) => key
+  })
+
+  assert.equal(tree.props.className, 'dsh-tcl-copy-root')
+  assert.equal(tree.props['data-code-preview'], true)
+
+  const header = tree.children[0]
+  assert.equal(header.props.className, 'dsh-tcl-copy-header')
+  const language = header.children[0].children[0]
+  assert.equal(language.props.className, 'dsh-tcl-copy-language')
+  assert.equal(language.children[0], 'codeBlock.title')
+
+  const actions = header.children[1]
+  const tooltip = actions.children[1]
+  assert.equal(tooltip.type.name, 'Tooltip')
+  assert.equal(tooltip.props.label, 'copy')
+
+  const button = tooltip.children[0]
+  assert.equal(button.type, 'button')
+  assert.equal(button.props.className, 'dsh-tcl-copy-action')
+  assert.equal(button.props['aria-label'], 'copy')
+  assert.equal(button.children[0].type.name, 'IconCopy')
+  assert.equal(button.children[0].props.size, 14)
+
+  assert.equal(tree.children[1].type.name, 'CodeBlock')
+  assert.equal(tree.children[1].props.showHeader, false)
 })

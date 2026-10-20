@@ -24,9 +24,9 @@ DSH 自带的 todo 属于单个 Session，切走会话就看不到；工作时�
 3. 备忘数据写入 `localStorage` 的 `dsh-memo.v1`。Desktop 的 preload 会把
    localStorage 代理到 profile 的 `desktop-storage.json`，因此数据跨重启保留，
    且不受普通浏览器站点数据清理影响。
-4. 到点调用 `new Notification(title, { body, silent: true })`。Desktop preload
-   把 `window.Notification` 替换成 IPC 通知桥，主进程用 Electron
-   `Notification` 显示 Windows toast；点击时主进程恢复并聚焦窗口。
+4. 到点时以空标题调用 `new Notification('', { body, silent: true })`，正文逐行列出
+   未完成事项。Desktop preload 把 `window.Notification` 替换成 IPC 通知桥，
+   主进程用 Electron `Notification` 显示 Windows toast；点击时主进程恢复并聚焦窗口。
 5. 通知的 `onclick` 再调用 `ctx.layout.selectPanel('dsh-memo')`，把面板带到前台。
 
 ## 提醒点

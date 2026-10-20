@@ -22,7 +22,6 @@ window.__ModuleLoader__.load({
     const NS = 'dshMemo'
     const STORAGE_KEY = 'dsh-memo.v1'
     const LAST_SLOT_KEY = 'dsh-memo.last-slot.v1'
-    const MAX_NOTIFY_ITEMS = 5
     const LATE_GRACE_MS = 2 * 60 * 1000
     // 09:00–12:00 and 13:30–18:00, excluding 09:00, 12:00, 13:30, 18:00.
     const SLOT_TIMES = [
@@ -45,10 +44,7 @@ window.__ModuleLoader__.load({
       testUnavailable: '当前环境不支持系统通知',
       edit: '编辑',
       delete: '删除',
-      notifyTitle: '备忘提醒 · {time}',
-      notifyTestTitle: '测试通知 · {time}',
-      notifyEmpty: '暂无待办',
-      notifyMore: '还有 {count} 项'
+      notifyEmpty: '暂无待办'
     }
     const en = {
       panel: 'Memo',
@@ -65,10 +61,7 @@ window.__ModuleLoader__.load({
       testUnavailable: 'System notifications are unavailable',
       edit: 'Edit',
       delete: 'Delete',
-      notifyTitle: 'Memo reminder · {time}',
-      notifyTestTitle: 'Test notification · {time}',
-      notifyEmpty: 'No pending memos',
-      notifyMore: 'and {count} more'
+      notifyEmpty: 'No pending memos'
     }
 
     // Header values mirror the host's `--dsw-*` tokens; the panel owns its
@@ -240,11 +233,6 @@ window.__ModuleLoader__.load({
       return new Date(year, month, day + 1, hour, minute, 0, 0).getTime()
     }
 
-    function formatSlot(value) {
-      const slot = value instanceof Date ? value : new Date(value)
-      return String(slot.getHours()).padStart(2, '0') + ':' + String(slot.getMinutes()).padStart(2, '0')
-    }
-
     function slotKey(value) {
       const slot = new Date(value)
       return [
@@ -254,10 +242,6 @@ window.__ModuleLoader__.load({
         slot.getHours(),
         slot.getMinutes()
       ].join('-')
-    }
-
-    function truncate(text, max) {
-      return text.length <= max ? text : text.slice(0, max - 1) + '…'
     }
 
     let lastNotification = null
@@ -279,23 +263,18 @@ window.__ModuleLoader__.load({
     function buildBody(items, t) {
       const pending = items.filter((item) => !item.done)
       if (pending.length === 0) return t('notifyEmpty')
-      const lines = pending.slice(0, MAX_NOTIFY_ITEMS).map((item) => '• ' + truncate(item.text, 48))
-      if (pending.length > MAX_NOTIFY_ITEMS) {
-        lines.push(t('notifyMore', { count: pending.length - MAX_NOTIFY_ITEMS }))
-      }
-      return lines.join('\n')
+      return pending.map((item) => '• ' + item.text).join('\n')
     }
 
-    function showReminder({ items, time, test, t, onOpen }) {
+    function showReminder({ items, t, onOpen }) {
       if (!notificationAvailable()) return false
-      const title = test ? t('notifyTestTitle', { time }) : t('notifyTitle', { time })
       try {
         if (lastNotification !== null && typeof lastNotification.close === 'function') {
           try {
             lastNotification.close()
           } catch (e) {}
         }
-        const notification = new Notification(title, { body: buildBody(items, t), silent: true })
+        const notification = new Notification('', { body: buildBody(items, t), silent: true })
         notification.onclick = () => {
           try {
             onOpen()
@@ -316,11 +295,9 @@ window.__ModuleLoader__.load({
       let stopped = true
       let unsubscribe = null
 
-      function notify(slot, test) {
+      function notify() {
         return showReminder({
           items: store.getSnapshot().items,
-          time: formatSlot(slot),
-          test,
           t,
           onOpen
         })
@@ -334,7 +311,7 @@ window.__ModuleLoader__.load({
           last = localStorage.getItem(LAST_SLOT_KEY)
         } catch (e) {}
         if (last === key) return
-        if (notify(slot, false)) {
+        if (notify()) {
           try {
             localStorage.setItem(LAST_SLOT_KEY, key)
           } catch (e) {}
@@ -375,7 +352,7 @@ window.__ModuleLoader__.load({
           }
         },
         notifyTest() {
-          return notify(Date.now(), true)
+          return notify()
         }
       }
     }

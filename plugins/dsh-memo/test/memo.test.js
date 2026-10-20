@@ -218,7 +218,7 @@ test('fires a silent notification with pending items and opens the panel', () =>
 
   assert.equal(harness.notifications.length, 1)
   const notification = harness.notifications[0]
-  assert.equal(notification.title, '备忘提醒 · 09:30')
+  assert.equal(notification.title, '')
   assert.equal(notification.options.body, '• Alpha\n• Gamma')
   assert.equal(notification.options.silent, true)
 
@@ -239,7 +239,7 @@ test('shows the empty message when nothing is pending', () => {
   }
 })
 
-test('caps the notification list and reports the remainder', () => {
+test('lists every pending item without extra text', () => {
   const items = Array.from({ length: 7 }, (_, index) => ({
     id: String(index),
     text: 'Item ' + (index + 1),
@@ -253,9 +253,9 @@ test('caps the notification list and reports the remainder', () => {
   harness.fire(timer)
 
   const body = harness.notifications[0].options.body
-  assert.ok(body.includes('Item 5'))
-  assert.ok(!body.includes('Item 6'))
-  assert.ok(body.includes('还有 2 项'))
+  assert.equal(body.split('\n').length, 7)
+  assert.ok(body.includes('Item 7'))
+  assert.ok(!body.includes('还有'))
 })
 
 test('skips a slot that is more than two minutes late', () => {
@@ -324,6 +324,6 @@ test('test notifications work while reminders are disabled', () => {
 
   assert.equal(reminder.notifyTest(), true)
   assert.equal(harness.notifications.length, 1)
-  assert.ok(harness.notifications[0].title.startsWith('测试通知 · '))
+  assert.equal(harness.notifications[0].title, '')
   assert.equal(harness.notifications[0].options.body, '暂无待办')
 })

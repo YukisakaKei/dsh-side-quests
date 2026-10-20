@@ -7,7 +7,7 @@
  *
  * The copy button here comes from `CodeBlock` and copies the currently loaded
  * text. For exact full-file copy (including the trailing newline), see the
- * `readBytes` approach in dsh-tcl-copy.
+ * `readBytes` approach in docs/development.md.
  */
 window.__ModuleLoader__.load({
   id: '__PLUGIN_NAME__',

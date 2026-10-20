@@ -8,12 +8,8 @@
 
 ## 常用命令
 
-```sh
-npm test
-npm run check
-npm run check:public
-npm run new -- <name>
-```
+测试与校验命令见 [docs/testing.md](docs/testing.md)；新建插件见
+[docs/development.md](docs/development.md)。
 
 ## 个人习惯
 
@@ -25,7 +21,7 @@ npm run new -- <name>
 
 ### 文档
 
-- `README.md` 与 `docs/` 只保留当前最新状态的正面描述：现在支持什么、怎么用、当前边界是什么。
+- `README.md`、`docs/` 与插件文档只保留当前最新状态的正面描述：现在支持什么、怎么用、当前边界是什么。
 - 不写历史版本、废弃方案、迁移过程或“以前……现在……”的对比；版本历史只放 `CHANGELOG.md`。
 - `AGENTS.md` 的约束条目和 `CHANGELOG.md` 的版本记录不受“只保留正向描述”限制。
 
@@ -43,7 +39,7 @@ npm run new -- <name>
 - client 半使用 `window.__ModuleLoader__.load`，`id` 与包名一致。
 - `documentPreviews` definition id 与正文 slot key 必须一致。
 - 不引入 `fs-write` / `shell` / `network` 能力；文件读取走宿主 `remote` 接口。
-- 新增或修改插件后运行 `npm run check` 和 `npm test`。
+- 新增或修改插件后按 [docs/testing.md](docs/testing.md) 运行校验与测试。
 
 ## 公开仓库红线
 
@@ -53,12 +49,27 @@ npm run new -- <name>
   `docs/reference.md`。
 - 测试夹具使用合成数据，不使用真实 EDA 设计文件。
 - 借用第三方代码必须在 `THIRD_PARTY_NOTICES.md` 登记。
-- 首次推送前运行 `npm run check:public`。
+- 首次推送前按 [docs/testing.md](docs/testing.md) 运行公开性扫描。
 
-## 文档分工
+## 文档树与单一来源
 
-- 用户文档：插件自己的 `README.md`
-- 开发文档：`docs/development.md`
-- 本地安装：`docs/local-install.md`
-- 测试：`docs/testing.md`
-- 设计记录：`docs/plugins/<name>/design.md`
+- 同一事实只在一个文件描述；其它文件链接，不复制。
+- 上级文档引用下级文档；同一目录下的文档不互相引用（`README.md` 与 `docs/README.md` 作为索引例外）。
+- 跨层级链接只指向事实归属文件，不复述内容。
+
+| 事实 | 归属 |
+|---|---|
+| 仓库规则、公开红线 | `AGENTS.md` |
+| 仓库索引、插件列表、结构树 | `README.md` |
+| 跨插件开发接口 | `docs/development.md` |
+| 安装、卸载、生效条件 | `docs/local-install.md` |
+| 测试命令、通用测试数据规则 | `docs/testing.md` |
+| 上游资料、`local/` 布局、asar 工具 | `docs/reference.md` |
+| 插件行为、限制、宿主兼容、排查 | `plugins/<name>/README.md` |
+| 插件设计 | `plugins/<name>/DESIGN.md` |
+| 插件手工验收 | `plugins/<name>/TESTING.md` |
+| 插件版本历史 | `plugins/<name>/CHANGELOG.md` |
+| 插件当前版本 | `plugins/<name>/package.json` |
+
+- `package-lock.json` 由 npm 生成，版本以 `package.json` 为准，不手改。
+- 每个插件在 README 的「宿主兼容」中记录自己适配的 DSH 版本，不写进仓库级文档。

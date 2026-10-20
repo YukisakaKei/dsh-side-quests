@@ -1,14 +1,24 @@
 # DSH 插件开发指南
 
-本文记录本仓库实际使用的 DSH 插件接口与约定。内容以已验证的宿主版本为准；
-接口是宿主提供的公开扩展点，具体实现可能随 DSH 版本变化。
+本文记录本仓库实际使用的 DSH 插件接口与约定。接口是宿主提供的公开扩展点，
+具体实现可能随 DSH 版本变化；各插件的目标宿主版本见其 README 的「宿主兼容」。
 
 ## 宿主版本
 
-- 当前核对：DSH Desktop 0.12.0 代次，内核 `@deepseek-ai/dsh` 0.2.0-rc.2，profile `web`。
-- 浏览器半依赖的模块加载器、`documentPreviews`、正文 slot、
-  `remote.workspaceFiles.readBytes`、`CodeBlock` 与 `Tooltip` 已按该版本的客户端包核对。
-- 其它版本未逐一验证；升级 DSH 后应重新检查本指南与插件。
+本指南只记录跨插件稳定的接口。每个插件实际适配的宿主版本记录在该插件 README 的
+「宿主兼容」中；新增插件可以适配不同的宿主版本，不需要等待其它插件升级。
+升级 DSH 后按文末的兼容检查清单逐个插件复核。
+
+## 新建插件
+
+从模板生成：
+
+```sh
+npm run new -- dsh-example --ext tcl,sdc
+```
+
+脚本会复制 `templates/plugin-preview/` 并替换占位符，生成 README、DESIGN、TESTING
+与包骨架。生成后按提示运行校验与测试。
 
 ## 插件包契约
 
@@ -19,6 +29,8 @@ plugins/<package-name>/
 ├─ package.json
 ├─ cordis.patch.yml
 ├─ README.md
+├─ DESIGN.md
+├─ TESTING.md
 ├─ CHANGELOG.md
 ├─ lib/
 │  ├─ index.js          # host 半
@@ -54,7 +66,8 @@ plugins/<package-name>/
         "@deepseek-ai/dsh-client-runtime",
         "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-ui-slots",
-        "@deepseek-ai/dsh-client-ui-primitives"
+        "@deepseek-ai/dsh-client-ui-primitives",
+        "@deepseek-ai/dsh-client-ui-sidebar-documentpreview"
       ]
     }
   },
@@ -63,10 +76,12 @@ plugins/<package-name>/
 ```
 
 - `private: true`：本仓库不发布 npm，防止误执行 `npm publish`；本地路径安装不受影响。
-- `dsh.bundle.patch`：安装时把 `cordis.patch.yml` 的 `insert` 行挂进 profile。
+- `dsh.bundle.patch`：安装时 CLI 把包加入 `dsh.profile.bundles`；启动时加载器应用该
+  patch 的 `insert` 行。
 - `dsh.client.platform: "web"` + `exports["./client"]`：宿主发现并下发浏览器半。
 - `dsh.client.inject` 是**包级**加载顺序声明，不是服务级依赖。
 - 平台包必须由宿主提供，不能打包进插件，否则会出现重复实例。
+- `DESIGN.md` / `TESTING.md` 是仓库文档，不加入 `files`。
 
 `cordis.patch.yml`：
 
@@ -215,7 +230,7 @@ ctx.remote.workspaceFiles.readBytes(sessionId, path, {}, signal)
 ## 复制到剪贴板
 
 优先 `navigator.clipboard.writeText`，失败时退回 `document.execCommand('copy')`。
-复制失败与读取失败要区分提示；按钮可以在读取期间禁用，成功后短暂显示「已复制」。
+读取或剪贴板失败都要给出可见提示并允许重试；具体文案由插件 README 定义。
 
 ## 生命周期与容错
 
@@ -241,12 +256,6 @@ ctx.remote.workspaceFiles.readBytes(sessionId, path, {}, signal)
 4. `CodeBlock` 的 props 与样式上下文是否变化。
 5. 大文件、分页加载、复制全文是否仍正常。
 
-上游包的本地副本与 asar 提取物放在 `local/reference/`，只供本机查阅，不提交。
-索引见 [reference.md](reference.md)。
+## 提交与公开范围
 
-## 版权与公开仓库注意事项
-
-- 本文只记录接口事实与本仓库自己的实现，不复制宿主源码。
-- 不要把 `app.asar` 提取物、官方 README 全文提交到公开仓库。
-- 借用第三方代码时在 `THIRD_PARTY_NOTICES.md` 登记。
-- 文档与测试中不要出现真实机器路径、用户名、内部项目名或真实设计数据。
+见 [AGENTS.md](../AGENTS.md) 的「公开仓库红线」。

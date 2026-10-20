@@ -7,7 +7,7 @@ DSH 内置的「扩展名 → 语言」表不含 `tcl`，`.tcl` 因此落到纯�
 
 ## 目标
 
-在右侧栏预览 `.tcl` 时提供一个「复制全文」按钮，复制结果与文件全文一致，
+在右侧栏预览 `.tcl` 时提供一个复制入口，复制结果与文件全文一致，
 包括末尾换行与 CRLF，并且不影响其它后缀的预览行为。
 
 ## 方案
@@ -49,30 +49,12 @@ flex 布局与内部滚动。
 | 非 UTF-8 | 按 UTF-8 解码，可能乱码 | 与宿主文本预览限制一致；不做 GBK 猜测 |
 | 平台包 | 由宿主 `require` 提供 | 避免重复实例；取不到时跳过注册而不是抛错 |
 
-## 行为
-
-| 场景 | 结果 |
-|---|---|
-| 普通 UTF-8 / UTF-8 BOM / UTF-16 BOM | 复制全文 |
-| 空文件 | 复制空串 |
-| 超过宿主读取上限 | 提示「文件过大，无法复制全文」，不复制部分 |
-| 含 NUL 字节 | 提示「疑似二进制文件，无法复制」 |
-| 读取失败 | 提示「读取失败」，可重试 |
-| 非 UTF-8（GBK 等） | 按 UTF-8 解码，可能乱码（已知限制） |
-
 ## 生命周期与容错
 
 - 所有注册放在 `ctx.effect` 中；禁用或卸载后自动回收。
 - 服务缺失时打印警告并跳过注册，不影响宿主启动。
 - 读取使用 tab 的取消信号；组件卸载后忽略晚到结果。
 - 复制成功状态约 1 秒后恢复。
-
-## 兼容性
-
-- 目标宿主：DSH Desktop 0.12.0 代次，内核 `@deepseek-ai/dsh` 0.2.0-rc.2，profile `web`。
-- 依赖 `documentPreviews.register`、`slots.register`、
-  `remote.workspaceFiles.readBytes`、`CodeBlock`、`Tooltip` 与复制/对勾图标。
-- 升级 DSH 后按 [开发指南](../../development.md) 的兼容检查清单复核。
 
 ## 安全与隐私
 
@@ -84,4 +66,5 @@ flex 布局与内部滚动。
 ## 证据
 
 原始实施计划、asar 提取物和官方文档副本保存在 `local/`，不进入公开仓库。
-接口摘要见 [docs/development.md](../../development.md)。
+接口摘要见 [docs/development.md](../../docs/development.md)，资料索引见
+[docs/reference.md](../../docs/reference.md)。

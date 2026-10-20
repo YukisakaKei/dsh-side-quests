@@ -1,5 +1,8 @@
 # __PLUGIN_NAME__ bundle patch
 #
+# Mount semantics and the package contract are documented in
+# docs/development.md; install commands in docs/local-install.md.
+#
 # Do not add a manual mount line for this package to the profile's
 # cordis.patch.yml; that would double-mount the plugin.
 - insert:

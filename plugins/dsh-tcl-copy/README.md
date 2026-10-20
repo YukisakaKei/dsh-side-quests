@@ -3,18 +3,15 @@
 一键复制 `.tcl` 文件**全文**的 DSH Web 插件：在右侧栏预览 `.tcl` 时，预览头部出现
 与内置代码预览一致的复制图标，点击后把整个文件内容（含末尾换行）写入剪贴板。
 
-本插件是 [dsh-plugin](../../README.md) 仓库的一部分，以 MIT 许可证发布，通过本地路径安装，
-不发布到 npm。
+本插件是 [dsh-plugin](../../README.md) 仓库的一部分，以 MIT 许可证发布，通过本地路径安装。
+文中的仓库内文档链接只在仓库中有效。
 
 ## 为什么需要它
 
-DSH 内置的「扩展名 → 语言」表不含 `tcl`，所以 `.tcl` 落到纯文本兜底预览，
-没有复制按钮；且内置代码预览的复制走分页读取，只能复制「已加载部分」，还会裁剪末尾换行。
-本插件：
+DSH 内置的「扩展名 → 语言」表不含 `tcl`，`.tcl` 因此落到纯文本兜底预览，没有复制入口。
+内置代码预览的复制只覆盖已加载分页，并会裁剪末尾换行；本插件在点击时读取完整字节后复制全文。
 
-- 显示：复用内置 `text-pages` 分页加载与 `CodeBlock`；头部按内置 `CodeToolbar` 复刻
-  （语言标签、复制图标、Tooltip、明暗主题），与自带代码预览外观一致。
-- 复制：点击后自行 `readBytes` 读**完整字节**再解码，复制到的是全文，且保留末尾换行与 CRLF。
+设计与取舍见 [DESIGN.md](DESIGN.md)。
 
 ## 行为
 
@@ -49,41 +46,24 @@ DSH 内置的「扩展名 → 语言」表不含 `tcl`，所以 `.tcl` 落到纯
 - 没有键盘快捷键；复制入口只有预览头部的复制图标。
 - 复制失败与读取失败共用「读取失败」提示，暂未细分剪贴板错误。
 
-## 安装
-
-在本仓库根目录之外执行（把路径替换为实际路径）：
-
-```sh
-dsh plugin --profile web add /绝对路径/dsh-plugin/plugins/dsh-tcl-copy
-```
-
-生效条件：host 半变化需重启 DSH Desktop；仅 client 半变化硬刷新浏览器（Ctrl+Shift+R）。
-
-卸载 / 禁用：
-
-```sh
-dsh plugin --profile web remove dsh-tcl-copy
-```
-
-禁用后 `.tcl` 自动回到内置纯文本预览。
-
-## 开发与测试
-
-```sh
-npm test
-npm run check
-npm run check:public
-```
-
-接口说明见 [docs/development.md](../../docs/development.md)，手工验收清单见
-[docs/testing.md](../../docs/testing.md)。
-
 ## 宿主兼容
 
 - 目标宿主：DSH Desktop 0.12.0 代次，内核 `@deepseek-ai/dsh` 0.2.0-rc.2，profile `web`。
-- 依赖的内置契约（`documentPreviews.register`、`slots.register({ locale })`、
-  `ctx.remote.workspaceFiles.readBytes`、`CodeBlock` / `Tooltip` / 图标原语）已在该版本的
-  客户端包中核对。
+- 核对日期：2026-10-20。
+- 依赖的内置契约：`documentPreviews.register`、`slots.register({ locale })`、
+  `ctx.remote.workspaceFiles.readBytes`、`CodeBlock` / `Tooltip` / 图标原语。
+- 其它版本未逐一验证；升级 DSH 后按
+  [docs/development.md](../../docs/development.md) 的兼容检查清单复核。
+
+## 安装
+
+安装、卸载与生效条件见 [docs/local-install.md](../../docs/local-install.md)。
+
+## 开发与测试
+
+- 自动测试与校验命令：[docs/testing.md](../../docs/testing.md)
+- 本插件手工验收与边界用例：[TESTING.md](TESTING.md)
+- 接口与包契约：[docs/development.md](../../docs/development.md)
 
 ## 排查
 

@@ -13,8 +13,10 @@ const BINARY_EXTENSIONS = new Set([
 
 const PATTERNS = [
   { label: 'Windows user path', regex: /C:\\Users\\[^\\\s]+/i },
+  { label: 'Windows user path (forward slashes)', regex: /[A-Za-z]:\/Users\/[^/\s]+/i },
   { label: 'Git Bash user path', regex: /\/c\/Users\/[^/\s]+/i },
   { label: 'Personal workspace path', regex: /D:\\AI_Agent/i },
+  { label: 'Personal workspace path (forward slashes)', regex: /D:\/AI_Agent/i },
   { label: 'Personal username', regex: /huangqiwei/i },
   { label: 'Personal hostname', regex: /LT-HUANGQIWEI/i },
   { label: 'Old personal email', regex: /1367105972@qq\.com/i },

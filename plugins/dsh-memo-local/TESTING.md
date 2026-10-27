@@ -1,4 +1,4 @@
-# dsh-memo 测试
+# dsh-memo-local 测试
 
 自动测试命令与通用测试数据规则见 [docs/testing.md](../../docs/testing.md)。
 安装与生效条件见 [docs/local-install.md](../../docs/local-install.md)。

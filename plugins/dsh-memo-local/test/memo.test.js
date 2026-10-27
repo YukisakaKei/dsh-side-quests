@@ -174,11 +174,11 @@ test('registers the global panel and schedules the next slot', () => {
 
   const main = mainRegistration(context)
   assert.ok(main)
-  assert.equal(main.options.key, 'dsh-memo')
+  assert.equal(main.options.key, 'dsh-memo-local')
 
   const sidebar = context.registrations.find((registration) => registration.name === 'sidebar.panellist')
   assert.ok(sidebar)
-  assert.equal(sidebar.options.id, 'dsh-memo')
+  assert.equal(sidebar.options.id, 'dsh-memo-local')
   assert.equal(sidebar.options.label(), '备忘')
 
   assert.equal(harness.timers.length, 1)
@@ -223,7 +223,7 @@ test('fires a silent notification with pending items and opens the panel', () =>
   assert.equal(notification.options.silent, true)
 
   notification.onclick()
-  assert.equal(context.getSelectedPanel(), 'dsh-memo')
+  assert.equal(context.getSelectedPanel(), 'dsh-memo-local')
 })
 
 test('shows the empty message when nothing is pending', () => {

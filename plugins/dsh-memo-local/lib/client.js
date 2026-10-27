@@ -1,5 +1,5 @@
 /**
- * dsh-memo — 全局备忘库与定时提醒（浏览器半）
+ * dsh-memo-local — 全局备忘库与定时提醒（浏览器半）
  *
  * Registers a global panel (`sidebar.panellist` + `main`) and a wall-clock
  * reminder timer. Reminders use the Desktop preload's `window.Notification`
@@ -7,7 +7,7 @@
  * and opens the memo panel.
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-memo',
+  id: 'dsh-memo-local',
   factory: (require) => {
     const React = require('react')
 
@@ -18,7 +18,7 @@ window.__ModuleLoader__.load({
       primitives = null
     }
 
-    const PANEL_ID = 'dsh-memo'
+    const PANEL_ID = 'dsh-memo-local'
     const NS = 'dshMemo'
     const STORAGE_KEY = 'dsh-memo.v1'
     const LAST_SLOT_KEY = 'dsh-memo.last-slot.v1'
@@ -67,25 +67,25 @@ window.__ModuleLoader__.load({
     // Header values mirror the host's `--dsw-*` tokens; the panel owns its
     // padding because it is a root-scoped entry page.
     const STYLES = `
-.dsh-memo-root{height:100%;overflow:auto;box-sizing:border-box;padding:calc(var(--dsh-frame-top-clearance,16px) + 24px) clamp(24px,6vw,72px) 48px;color:var(--dsw-alias-label-primary)}
-.dsh-memo-inner{display:flex;flex-direction:column;gap:16px;max-width:760px;margin:0 auto}
-.dsh-memo-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
-.dsh-memo-title{margin:0;font-size:22px;line-height:1.3;font-weight:600}
-.dsh-memo-subtitle{margin:6px 0 0;color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:1.5}
-.dsh-memo-header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.dsh-memo-switch-label{display:inline-flex;align-items:center;gap:8px;color:var(--dsw-alias-label-secondary);font-size:13px}
-.dsh-memo-add{display:flex;align-items:center;gap:8px}
-.dsh-memo-input{flex:1;min-width:0}
-.dsh-memo-notice{color:var(--dsw-alias-label-secondary);font-size:12px}
-.dsh-memo-empty{padding:40px 16px;text-align:center;color:var(--dsw-alias-label-tertiary);font-size:13px;border:1px dashed var(--dsw-alias-border-l2);border-radius:12px}
-.dsh-memo-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.dsh-memo-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--dsw-alias-border-l2);border-radius:10px;background:var(--dsw-alias-bg-base)}
-.dsh-memo-row[data-done='true'] .dsh-memo-check>span{text-decoration:line-through;color:var(--dsw-alias-label-tertiary)}
-.dsh-memo-check{flex:1;min-width:0}
-.dsh-memo-check>span{overflow-wrap:anywhere;line-height:1.5}
-.dsh-memo-edit{flex:1;min-width:0}
-.dsh-memo-row-actions{display:flex;align-items:center;gap:2px;flex:none}
-.dsh-memo-count{color:var(--dsw-alias-label-tertiary);font-size:12px;text-align:right}
+.dsh-memo-local-root{height:100%;overflow:auto;box-sizing:border-box;padding:calc(var(--dsh-frame-top-clearance,16px) + 24px) clamp(24px,6vw,72px) 48px;color:var(--dsw-alias-label-primary)}
+.dsh-memo-local-inner{display:flex;flex-direction:column;gap:16px;max-width:760px;margin:0 auto}
+.dsh-memo-local-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.dsh-memo-local-title{margin:0;font-size:22px;line-height:1.3;font-weight:600}
+.dsh-memo-local-subtitle{margin:6px 0 0;color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:1.5}
+.dsh-memo-local-header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dsh-memo-local-switch-label{display:inline-flex;align-items:center;gap:8px;color:var(--dsw-alias-label-secondary);font-size:13px}
+.dsh-memo-local-add{display:flex;align-items:center;gap:8px}
+.dsh-memo-local-input{flex:1;min-width:0}
+.dsh-memo-local-notice{color:var(--dsw-alias-label-secondary);font-size:12px}
+.dsh-memo-local-empty{padding:40px 16px;text-align:center;color:var(--dsw-alias-label-tertiary);font-size:13px;border:1px dashed var(--dsw-alias-border-l2);border-radius:12px}
+.dsh-memo-local-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.dsh-memo-local-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--dsw-alias-border-l2);border-radius:10px;background:var(--dsw-alias-bg-base)}
+.dsh-memo-local-row[data-done='true'] .dsh-memo-local-check>span{text-decoration:line-through;color:var(--dsw-alias-label-tertiary)}
+.dsh-memo-local-check{flex:1;min-width:0}
+.dsh-memo-local-check>span{overflow-wrap:anywhere;line-height:1.5}
+.dsh-memo-local-edit{flex:1;min-width:0}
+.dsh-memo-local-row-actions{display:flex;align-items:center;gap:2px;flex:none}
+.dsh-memo-local-count{color:var(--dsw-alias-label-tertiary);font-size:12px;text-align:right}
 `.trim()
 
     function formatText(text, params) {
@@ -139,7 +139,7 @@ window.__ModuleLoader__.load({
         const raw = localStorage.getItem(STORAGE_KEY)
         return raw === null ? defaultState() : normalizeState(JSON.parse(raw))
       } catch (e) {
-        console.warn('[dsh-memo] failed to read storage', e)
+        console.warn('[dsh-memo-local] failed to read storage', e)
         return defaultState()
       }
     }
@@ -148,7 +148,7 @@ window.__ModuleLoader__.load({
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
       } catch (e) {
-        console.warn('[dsh-memo] failed to write storage', e)
+        console.warn('[dsh-memo-local] failed to write storage', e)
       }
     }
 
@@ -161,7 +161,7 @@ window.__ModuleLoader__.load({
           try {
             listener()
           } catch (e) {
-            console.error('[dsh-memo] store listener failed', e)
+            console.error('[dsh-memo-local] store listener failed', e)
           }
         }
       }
@@ -279,13 +279,13 @@ window.__ModuleLoader__.load({
           try {
             onOpen()
           } catch (e) {
-            console.warn('[dsh-memo] failed to open panel', e)
+            console.warn('[dsh-memo-local] failed to open panel', e)
           }
         }
         lastNotification = notification
         return true
       } catch (e) {
-        console.warn('[dsh-memo] notification failed', e)
+        console.warn('[dsh-memo-local] notification failed', e)
         return false
       }
     }
@@ -359,9 +359,9 @@ window.__ModuleLoader__.load({
 
     function injectStyles() {
       if (typeof document === 'undefined') return
-      if (document.getElementById('dsh-memo-styles') !== null) return
+      if (document.getElementById('dsh-memo-local-styles') !== null) return
       const style = document.createElement('style')
-      style.id = 'dsh-memo-styles'
+      style.id = 'dsh-memo-local-styles'
       style.textContent = STYLES
       document.head.appendChild(style)
     }
@@ -420,16 +420,16 @@ window.__ModuleLoader__.load({
 
       return React.createElement(
         'li',
-        { className: 'dsh-memo-row', 'data-done': item.done ? 'true' : 'false' },
+        { className: 'dsh-memo-local-row', 'data-done': item.done ? 'true' : 'false' },
         React.createElement(primitives.Checkbox, {
           checked: item.done,
           onChange: () => store.toggle(item.id),
           label: editing ? '' : item.text,
           title: item.text,
-          className: 'dsh-memo-check'
+          className: 'dsh-memo-local-check'
         }),
         editing && React.createElement(primitives.Input, {
-          className: 'dsh-memo-edit',
+          className: 'dsh-memo-local-edit',
           value: text,
           autoFocus: true,
           onChange: (event) => setText(event.target.value),
@@ -440,7 +440,7 @@ window.__ModuleLoader__.load({
         }),
         React.createElement(
           'div',
-          { className: 'dsh-memo-row-actions' },
+          { className: 'dsh-memo-local-row-actions' },
           editButton,
           React.createElement(primitives.Button, {
             variant: 'ghost',
@@ -507,25 +507,25 @@ window.__ModuleLoader__.load({
 
       return React.createElement(
         'div',
-        { className: 'dsh-memo-root' },
+        { className: 'dsh-memo-local-root' },
         React.createElement(
           'div',
-          { className: 'dsh-memo-inner' },
+          { className: 'dsh-memo-local-inner' },
           React.createElement(
             'header',
-            { className: 'dsh-memo-header' },
+            { className: 'dsh-memo-local-header' },
             React.createElement(
               'div',
               null,
-              React.createElement('h1', { className: 'dsh-memo-title' }, t('title')),
-              React.createElement('p', { className: 'dsh-memo-subtitle' }, t('subtitle'))
+              React.createElement('h1', { className: 'dsh-memo-local-title' }, t('title')),
+              React.createElement('p', { className: 'dsh-memo-local-subtitle' }, t('subtitle'))
             ),
             React.createElement(
               'div',
-              { className: 'dsh-memo-header-actions' },
+              { className: 'dsh-memo-local-header-actions' },
               React.createElement(
                 'span',
-                { className: 'dsh-memo-switch-label' },
+                { className: 'dsh-memo-local-switch-label' },
                 React.createElement(primitives.Switch, {
                   checked: state.enabled,
                   onChange: (checked) => store.setEnabled(checked),
@@ -542,9 +542,9 @@ window.__ModuleLoader__.load({
           ),
           React.createElement(
             'div',
-            { className: 'dsh-memo-add' },
+            { className: 'dsh-memo-local-add' },
             React.createElement(primitives.Input, {
-              className: 'dsh-memo-input',
+              className: 'dsh-memo-local-input',
               value: draft,
               placeholder: t('placeholder'),
               onChange: (event) => setDraft(event.target.value),
@@ -564,12 +564,12 @@ window.__ModuleLoader__.load({
               t('add')
             )
           ),
-          notice !== '' && React.createElement('div', { className: 'dsh-memo-notice' }, notice),
+          notice !== '' && React.createElement('div', { className: 'dsh-memo-local-notice' }, notice),
           ordered.length === 0
-            ? React.createElement('div', { className: 'dsh-memo-empty' }, t('empty'))
+            ? React.createElement('div', { className: 'dsh-memo-local-empty' }, t('empty'))
             : React.createElement(
                 'ul',
-                { className: 'dsh-memo-list' },
+                { className: 'dsh-memo-local-list' },
                 ordered.map((item) => React.createElement(MemoRow, {
                   key: item.id,
                   item,
@@ -577,7 +577,7 @@ window.__ModuleLoader__.load({
                   t
                 }))
               ),
-          ordered.length > 0 && React.createElement('div', { className: 'dsh-memo-count' }, count)
+          ordered.length > 0 && React.createElement('div', { className: 'dsh-memo-local-count' }, count)
         )
       )
     }
@@ -599,7 +599,7 @@ window.__ModuleLoader__.load({
       const missing = required.filter((name) => primitives === null || primitives[name] === undefined)
 
       if (slots === undefined || missing.length > 0) {
-        console.warn('[dsh-memo] required services unavailable; skipping registration', {
+        console.warn('[dsh-memo-local] required services unavailable; skipping registration', {
           slots: slots !== undefined,
           primitives: missing
         })
@@ -625,7 +625,7 @@ window.__ModuleLoader__.load({
       ctx.effect(() => {
         reminder.start()
         return () => reminder.stop()
-      }, 'dsh-memo: reminder timer')
+      }, 'dsh-memo-local: reminder timer')
 
       ctx.effect(() => slots.inject('main', () => slots.register({
         name: 'main',
@@ -644,7 +644,7 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      name: 'dsh-memo',
+      name: 'dsh-memo-local',
       inject: ['slots', 'locale', 'layout'],
       apply
     }

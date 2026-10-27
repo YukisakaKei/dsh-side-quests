@@ -1,4 +1,4 @@
-# dsh-memo
+# dsh-memo-local
 
 依附于 DSH 的个人备忘库：在全局侧栏维护单行待办，每天在固定时段通过
 Windows 通知提醒。它与对话和 Session 的 todo 无关，数据只保存在本机。
@@ -78,9 +78,9 @@ DSH 自带的 todo 属于某个会话，换会话就看不到。本插件提供�
 ## 排查
 
 1. 侧栏没有「备忘」：检查浏览器控制台是否有
-   `[dsh-memo] required services unavailable`，确认插件已启用并重启过 DSH。
+   `[dsh-memo-local] required services unavailable`，确认插件已启用并重启过 DSH。
 2. 到点没有通知：先点面板里的「测试通知」。如果测试也没有，检查 Windows
-   通知设置与专注助手；控制台若出现 `[dsh-memo] notification failed`，
+   通知设置与专注助手；控制台若出现 `[dsh-memo-local] notification failed`，
    说明通知桥不可用。
 3. 备忘数据不见了：确认没有切换 profile，也没有删除 profile 下的
    `desktop-storage.json`。

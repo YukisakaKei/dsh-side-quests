@@ -6,7 +6,7 @@
 
 | 插件 | 说明 |
 |---|---|
-| [dsh-memo](plugins/dsh-memo/README.md) | 全局面板维护独立待办，固定时段弹 Windows 通知提醒 |
+| [dsh-memo-local](plugins/dsh-memo-local/README.md) | 全局面板维护独立待办，固定时段弹 Windows 通知提醒 |
 | [dsh-tcl-copy](plugins/dsh-tcl-copy/README.md) | 右侧栏预览 `.tcl` 时一键复制全文 |
 
 每个插件的文档都在自己的目录下：README 记录行为、限制、宿主兼容与排查；
